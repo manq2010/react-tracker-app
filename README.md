@@ -1108,7 +1108,7 @@ const AddTask = () => {
 export default AddTask
 ```
 
-App.js
+`App.js`
 
 ```js
 import AddTask from "./components/AddTask";
@@ -1127,3 +1127,219 @@ import AddTask from "./components/AddTask";
 
 #### Form input state (controlled components)
 
+`AddTask.js`
+
+```js
+import { useState } from "react"
+
+const AddTask = () => {
+    const [text, setText] = useState('')
+    const [day, setDay] = useState('')
+    const [reminder, setReminder] = useState(false)
+
+    return (
+        <form action="" className="add-form">
+            <div className="form-control">
+                <label>Task</label>
+                <input type="text" placeholder="Add Task" value={text} onChange={(e) => setText(e.target.value)} />
+            </div>
+
+            <div className="form-control">
+                <label>Day & Time</label>
+                <input type="text" placeholder="Add Day & Time" value={day} onChange={(e) => setDay(e.target.value)} />
+            </div>
+
+            <div className="form-control form-control-check">
+                <label>Set Reminder</label>
+                <input type="checkbox" value={reminder} onChange={(e) => setReminder(e.currentTarget.checked)} />
+                
+            </div>
+
+            <input type="submit" value="Save Task" className="btn btn-block" />
+        </form>
+    )
+}
+
+export default AddTask
+```
+
+### Add task submit
+
+`App.js`
+
+```js
+// Add Task
+  const addTask = (task) => {
+    console.log(task)
+  }
+
+ return (
+    <div className="container">
+      <Header />
+      <AddTask onAdd={addTask}/>
+      {tasks.length > 0 ?
+        <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} /> :
+        'No Tasks to Show'}
+
+    </div>
+  );
+```
+
+`AddTask.js`
+
+```js
+import { useState } from "react"
+
+const AddTask = ({ onAdd }) => {
+    const [text, setText] = useState('')
+    const [day, setDay] = useState('')
+    const [reminder, setReminder] = useState(false)
+
+    const onSubmit = (e) => {
+        e.preventDefault() // so that it does not submit to a page
+
+        if (!text) {
+            alert('Please add a task')
+            return
+        }
+        // pass in the objects
+        onAdd({ text, day, reminder })
+
+        // want to clear the form
+        setText('')
+        setDay('')
+        setReminder(false)
+
+    }
+
+    return (
+        <form action="" className="add-form" onSubmit={onSubmit}>
+            <div className="form-control">
+                <label>Task</label>
+                <input type="text" placeholder="Add Task" value={text} onChange={(e) => setText(e.target.value)} />
+            </div>
+
+            <div className="form-control">
+                <label>Day & Time</label>
+                <input type="text" placeholder="Add Day & Time" value={day} onChange={(e) => setDay(e.target.value)} />
+            </div>
+
+            <div className="form-control form-control-check">
+                <label>Set Reminder</label>
+                <input type="checkbox"
+                checked={reminder}
+                value={reminder} 
+                onChange={(e) => setReminder(e.currentTarget.checked)} />
+
+            </div>
+
+            <input type="submit" value="Save Task" className="btn btn-block" />
+        </form>
+    )
+}
+
+export default AddTask
+```
+
+**Console output**
+
+```t
+{text: 'one', day: 'two', reminder: false}
+day
+: 
+"two"
+reminder
+: 
+false
+text
+: 
+"one"
+[[Prototype]]
+: 
+Object
+```
+
+#### set New tasks
+
+```js
+  // Add Task
+  const addTask = (task) => {
+    // console.log(task)
+    const id = Math.floor(Math.random() * 10000) + 1
+    const newTask = { id, ...task }
+    setTasks([...tasks, newTask])
+  }
+```
+
+Button Toggle
+---
+
+`App.js`
+
+```js
+function App() {
+
+const [showAddTask, setShowAddTask] = useState(false)
+
+return (
+    <div className="container">
+      <Header />
+      {showAddTask && <AddTask onAdd={addTask} />}
+      {tasks.length > 0 ?
+        <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} /> :
+        'No Tasks to Show'}
+
+    </div>
+  );
+}
+```
+
+#### Adding the toggle
+
+`App.js`
+
+```js
+return (
+    <div className="container">
+      <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask} />
+      {showAddTask && <AddTask onAdd={addTask} />}
+      {tasks.length > 0 ?
+        <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} /> :
+        'No Tasks to Show'}
+
+    </div>
+  );
+```
+
+`Header.js`
+
+```js
+import PropTypes from 'prop-types'
+import Button from './Button'
+
+const Header = ({ title, onAdd, showAdd }) => {
+    return (
+        <header className='header'>
+            <h1>{title} </h1>
+            <Button color={showAdd ? 'red' : 'green'} text={showAdd ? 'Close' : 'Add'} onClick={onAdd} />
+
+        </header>
+    )
+}
+
+Header.defaultProps = {
+    title: "Task Tracker",
+}
+
+Header.propTypes = {
+    title: PropTypes.string.isRequired,
+}
+
+// CSS inline
+// const headingStyle = {
+//     color: 'red',
+//     backgroundColor: 'black'
+// }
+
+export default Header
+```
