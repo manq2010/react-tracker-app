@@ -18,6 +18,8 @@ Table of Contents
 * [Tasks Component](#tasks-component)
 * [State & useState Hook](#state--usestate-hook)
 * [Icons with react-icons](#icons-with-react-icons)
+* [Delete task & prop drilling](#delete-task--prop-drilling)
+* [Toggle reminder & conditional styling](#toggle-reminder--conditional-styling)
 * []()
 * []()
 * []()
@@ -838,8 +840,290 @@ export default Task
 Icons with react-icons
 ---
 
-Install the icon package using the below command:
+Install the  react icons which allows you to use mutliple libraties, using the below command:
 
 ```
 npm i react-icons
 ```
+
+To verify that they are installed you can see from the `package.json` file
+
+```json
+{
+  "name": "react-task-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+```
+
+`Task.js`
+
+```js
+import { FaTimes } from 'react-icons/fa'
+
+const Task = ({ task }) => {
+    return (
+        <div className='task'>
+            <h3>{task.text} <FaTimes style={{ color: 'red', cursor: 'pointer' }} /></h3>
+            <p>{task.day}</p>
+        </div>
+    )
+}
+
+export default Task
+```
+
+Delete task & prop drilling
+---
+
+**NB**
+
+* States gets passed down
+* Actions gets passed up
+
+`App.js`
+
+```js
+// Delete Task
+  const deleteTask = (id) => {
+    console.log('delete', id)
+  }
+
+  return (
+    <div className="container">
+      <Header />
+      <Tasks tasks={tasks} onDelete={deleteTask} />
+
+    </div>
+  );
+
+  ```
+
+`Tasks.js`
+
+```js
+import Task from "./Task"
+
+const Tasks = ({ tasks, onDelete }) => {
+    return (
+        <>
+            {tasks.map((task) => (
+                <Task key={task.id} task={task} onDelete={onDelete} />
+            ))}
+        </>
+    )
+}
+
+export default Tasks
+```
+
+`Task.js`
+
+```js
+import { FaTimes } from 'react-icons/fa'
+
+const Task = ({ task, onDelete }) => {
+    return (
+        <div className='task'>
+            <h3>{task.text} <FaTimes style={{ color: 'red', cursor: 'pointer' }} onClick={onDelete} /></h3>
+            <p>{task.day}</p>
+        </div>
+    )
+}
+
+export default Task
+```
+
+#### With the id returned
+
+```js
+import { FaTimes } from 'react-icons/fa'
+
+const Task = ({ task, onDelete }) => {
+    return (
+        <div className='task'>
+            <h3>{task.text} <FaTimes style={{ color: 'red', cursor: 'pointer' }} onClick={() => onDelete(task.id)} /></h3>
+            <p>{task.day}</p>
+        </div>
+    )
+}
+
+export default Task
+```
+
+#### Deleting the task
+
+`App.js`
+
+```js
+ // Delete Task
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id))
+  }
+
+  return (
+    <div className="container">
+      <Header />
+      {tasks.length > 0 ? <Tasks tasks={tasks} onDelete={deleteTask} /> : 'No Tasks to Show'}
+
+    </div>
+  );
+
+  ```
+
+Toggle reminder & conditional styling
+---
+
+`App.js`
+
+```js
+  // Toggle Reminder
+  const toggleReminder = (id) => {
+    console.log('Id', id)
+  }
+
+  return (
+    <div className="container">
+      <Header />
+      {tasks.length > 0 ?
+        <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} /> :
+        'No Tasks to Show'}
+
+    </div>
+```
+
+`Tasks.js`
+
+```js
+import Task from "./Task"
+
+const Tasks = ({ tasks, onDelete, onToggle }) => {
+    return (
+        <>
+            {tasks.map((task) => (
+                <Task key={task.id} task={task} onDelete={onDelete} onToggle={onToggle} />
+            ))}
+        </>
+    )
+}
+
+export default Tasks
+```
+
+`Task.js`
+
+```js
+import { FaTimes } from 'react-icons/fa'
+
+const Task = ({ task, onDelete, onToggle }) => {
+    return (
+        <div className='task' onDoubleClick={() => onToggle(task.id)}>
+            <h3>
+                {task.text} <FaTimes style={{ color: 'red', cursor: 'pointer' }} onClick={() => onDelete(task.id)} />
+            </h3>
+            <p>{task.day}</p>
+        </div>
+    )
+}
+
+export default Task
+```
+
+#### Toggling the reminder using id
+
+i.e if reminder is true it becomes false whne the event is called or vice versa
+
+`App.js`
+
+```js
+// Toggle Reminder
+  const toggleReminder = (id) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ?
+          { ...task, reminder: !task.reminder } :
+          task
+      )
+    )
+  }
+```
+
+`Task.js`
+
+```ruby
+import { FaTimes } from 'react-icons/fa'
+
+const Task = ({ task, onDelete, onToggle }) => {
+    return (
+        <div className={`task ${task.reminder ? 'reminder' : ''}`} onDoubleClick={() => onToggle(task.id)}>
+            <h3>
+                {task.text} <FaTimes style={{ color: 'red', cursor: 'pointer' }} onClick={() => onDelete(task.id)} />
+            </h3>
+            <p>{task.day}</p>
+        </div>
+    )
+}
+
+export default Task
+```
+
+Add Task Form
+---
+
+`AddTask.js`
+
+```js
+const AddTask = () => {
+    return (
+        <form action="" className="add-form">
+            <div className="form-control">
+                <label htmlFor="">Task</label>
+                <input type="text" name="" id="" placeholder="Add Task" />
+            </div>
+
+            <div className="form-control">
+                <label htmlFor="">Day & Time</label>
+                <input type="text" name="" id="" placeholder="Add Day & Time" />
+            </div>
+
+            <div className="form-control form-control-check">
+                <label htmlFor="">Set Reminder</label>
+                <input type="checkbox" name="" id="" />
+            </div>
+
+            <input type="submit" value="Save Task" className="btn btn-block"/>
+        </form>
+    )
+}
+
+export default AddTask
+```
+
+App.js
+
+```js
+import AddTask from "./components/AddTask";
+
+ return (
+    <div className="container">
+      <Header />
+      <AddTask />
+      {tasks.length > 0 ?
+        <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} /> :
+        'No Tasks to Show'}
+
+    </div>
+  );
+```
+
+#### Form input state (controlled components)
+
