@@ -6,10 +6,10 @@ Table of Contents
 * [Working with States](#working-with-states)
 * [React Hooks](#react-hooks)
 * [Create React App](#create-react-app)
-* [Package.JSON](#packagejson)
-* [Index.html](#indexhtml)
-* [Index.js](#indexjs)
-* [App.js](#appjs)
+  * [Package.JSON](#packagejson)
+  * [Index.html](#indexhtml)
+  * [Index.js](#indexjs)
+  * [App.js](#appjs)
 * [Creating a Component](#creating-a-component)
 * [Component Props](#component-props)
 * [Events](#events)
@@ -20,11 +20,21 @@ Table of Contents
 * [Icons with react-icons](#icons-with-react-icons)
 * [Delete task & prop drilling](#delete-task--prop-drilling)
 * [Toggle reminder & conditional styling](#toggle-reminder--conditional-styling)
-* []()
-* []()
-* []()
-* []()
-* []()
+* [Button Toggle](#button-toggle)
+* [Build for Production](#build-for-production)
+* [JSON server](#json-server)
+* [useEffect Hook & Fetch tasks from server](#useeffect-hook--fetch-tasks-from-server)
+* [Add task to server](#add-task-to-server)
+* [Toggle reminder on server](#toggle-reminder-on-server)
+* [Add Task Form](#add-task-form)
+* [Button Toggle](#button-toggle)
+* [Build for Production](#build-for-production)
+* [JSON server](#json-server)
+* [useEffect Hook & Fetch tasks from server](#useeffect-hook--fetch-tasks-from-server)
+* [Delete task from server](#delete-task-from-server)
+* [Add task to server](#add-task-to-server)
+* [Toggle reminder on server](#toggle-reminder-on-server)
+* [Routing, footer & about](#routing-footer--about)
 
 Working with States
 ---
@@ -54,16 +64,14 @@ npm start
 
 Install the [React Developer Tools](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) extension on chrome. It allows your ti see all the react states, components etc
 
-Package.JSON
----
+#### Package.JSON
 
 React-dom - responsible for rendering the react application to the DOM
 Scripts
 start - npm start will run the app on localhost:3000
 build - will build the static assests for deployment
 
-Index.html
----
+#### Index.html
 
 This is the SPA (Single Page Application) that's being loaded. The below is the gateway to the UI or react applicatin
 
@@ -71,8 +79,7 @@ This is the SPA (Single Page Application) that's being loaded. The below is the 
 <div id="root"></div>
   ```
 
-Index.js
----
+#### Index.js
 
 This is the entry point for react. It grabs the `div` with id `root` and inserting it the app into that div
 
@@ -93,8 +100,7 @@ root.render(
 reportWebVitals();
 ```
 
-App.js
----
+#### App.js
 
 This is the root app component and everthing seen on the <http://localhost:3000/> comes from here. In the return the syntax is jsx (javascript syntax extension)
 
@@ -1342,4 +1348,378 @@ Header.propTypes = {
 // }
 
 export default Header
+```
+
+Build for Production
+---
+
+How to build your static assets (this is what you deploy) on the root folder
+
+```t
+npm run build
+```
+
+If you want to try the build local, use the below:
+
+```t
+sudo npm i -g serve
+```
+
+Now us the below to serve the build
+
+```t
+serve -s build -p 8000
+```
+
+JSON server
+---
+
+Install JSON [JSON server Github](https://github.com/manq2010/json-server) locally
+
+```t
+npm i -g json-server
+```
+
+How to run it, open the `package.json` to add another script
+
+```json
+"scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "server": "json-server --watch db.json --port 5000"
+  },
+```
+
+Now run the server
+
+```t
+npm run server
+```
+
+Default `db.json` file created
+
+```json
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "json-server",
+      "author": "typicode"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "body": "some comment",
+      "postId": 1
+    }
+  ],
+  "profile": {
+    "name": "typicode"
+  }
+}
+```
+
+Update the db.json file to the below...
+
+```json
+{
+  "tasks": [
+    {
+      "id": 1,
+      "text": "Doctors Appointment",
+      "day": "Feb 5th at 2:30pm",
+      "reminder": true
+    },
+    {
+      "id": 2,
+      "text": "Meeting at School",
+      "day": "Feb 6th at 1:30pm",
+      "reminder": true
+    },
+    {
+      "id": 3,
+      "text": "Food Shopping",
+      "day": "Feb 5th at 3:30pm",
+      "reminder": false
+    }
+  ]
+}
+```
+
+The `App.js` will now look
+
+```js
+import { useState } from "react"
+import Header from "./components/Header";
+import Tasks from "./components/Tasks";
+import AddTask from "./components/AddTask";
+
+function App() {
+
+  const [showAddTask, setShowAddTask] = useState(false)
+  const [tasks, setTasks] = useState([])
+
+  // Add Task
+  const addTask = (task) => {
+    // console.log(task)
+    const id = Math.floor(Math.random() * 10000) + 1
+    const newTask = { id, ...task }
+    setTasks([...tasks, newTask])
+  }
+
+  // Delete Task
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id))
+  }
+
+  // Toggle Reminder
+  const toggleReminder = (id) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ?
+          { ...task, reminder: !task.reminder } :
+          task
+      )
+    )
+  }
+
+  return (
+    <div className="container">
+      <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask} />
+      {showAddTask && <AddTask onAdd={addTask} />}
+      {tasks.length > 0 ?
+        <Tasks tasks={tasks} onDelete={deleteTask} onToggle={toggleReminder} /> :
+        'No Tasks to Show'}
+
+    </div>
+  );
+}
+
+export default App
+```
+
+[localhost:5000/tasks](http://localhost:5000/tasks)
+
+useEffect Hook & Fetch tasks from server
+---
+
+The [`useEffect`](https://reactjs.org/docs/hooks-effect.html) Hook **allows you to perform side effects in your components**. Some examples of side effects are: fetching data, directly updating the DOM, and timers. useEffect accepts two arguments
+
+```js
+import { useEffect } from "react"
+
+function App() {
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const res = await fetch('http://localhost:5000/tasks')
+      const data = await res.json()
+
+      console.log(data)
+    }
+
+    fetchTasks()
+  }, [])
+
+}
+```
+
+Removing fetchTasks outside the useEffect
+
+```js
+  useEffect(() => {
+    const getTasks = async () => {
+      const tasksFromServer = await fetchTasks()
+      setTasks(tasksFromServer)
+    }
+
+    getTasks()
+  }, [])
+
+  // Fetch Tasks
+  const fetchTasks = async () => {
+    const res = await fetch('http://localhost:5000/tasks')
+    const data = await res.json()
+
+    // console.log(data)
+    return data
+  }
+```
+
+Delete task from server
+---
+
+Delete a task and also remove it from backend or the `db.json` file
+
+```js
+  // Delete Task
+  const deleteTask = async (id) => {
+    await fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'DELETE'
+    })
+
+    setTasks(tasks.filter((task) => task.id !== id))
+  }
+```
+
+Add task to server
+---
+
+Add a task and have it persidt at the backend or `db.json` file
+
+```js
+  // Add Task
+  const addTask = async (task) => {
+    const res = await fetch('http://localhost:5000/tasks/', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(task)
+    })
+
+    const data = await res.json()
+
+    setTasks([...tasks, data])
+
+
+    // // console.log(task)
+    // const id = Math.floor(Math.random() * 10000) + 1
+    // const newTask = { id, ...task }
+    // setTasks([...tasks, newTask])
+  }
+```
+
+Toggle reminder on server
+---
+
+```js
+  // Fetch Task
+  const fetchTask = async (id) => {
+    const res = await fetch(`http://localhost:5000/tasks/${id}`)
+    const data = await res.json()
+
+    // console.log(data)
+    return data
+  }
+
+   // Toggle Reminder
+  const toggleReminder = async (id) => {
+    const taskToToggle = await fetchTask(id)
+    const updTask = { ...taskToToggle, reminder: !taskToToggle.reminder }
+
+    const res = await fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(updTask)
+    })
+
+    const data = await res.json()
+
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ?
+          { ...task, reminder: data.reminder } :
+          task
+      )
+    )
+  }
+```
+
+Routing, footer & about
+---
+
+```
+npm i react-router-dom
+```
+
+```json
+{
+  "name": "react-task-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+```
+
+`App.js`
+
+```js
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+return (
+    <Router>
+      {/* <Navbar /> */}
+      {/* <Sun /> */}
+
+      <div className="container">
+
+        {/* <Moon /> */}
+        <Header
+          onAdd={() => setShowAddTask(!showAddTask)}
+          showAdd={showAddTask}
+        />
+
+        < Routes >
+          < Route
+            path='/'
+            exact
+            element={
+              <>
+                {showAddTask && <AddTask onAdd={addTask} />}
+                {tasks.length > 0 ?
+                  (<Tasks
+                    tasks={tasks}
+                    onDelete={deleteTask}
+                    onToggle={toggleReminder}
+                  />) :
+                  ('No Tasks to Show')}
+
+              </>
+            }
+          />
+
+          < Route
+            path='/about'
+            exact
+            element={<About />}
+          />
+
+        </Routes>
+        <Footer />
+      </div>
+    </Router >
+  )
+```
+
+`Header.js`
+
+```js
+import { useLocation } from 'react-router-dom'
+
+return (
+        <header className='header'>
+            <h1>{title} </h1>
+            {location.pathname === '/' && <Button
+                color={showAdd ? 'red' : 'green'}
+                text={showAdd ? 'Close' : 'Add'}
+                onClick={onAdd}
+            />}
+
+        </header>
+)
 ```
