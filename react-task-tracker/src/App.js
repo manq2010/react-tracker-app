@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Tasks from "./components/Tasks";
-import AddTask from "./components/AddTask";
-import Footer from "./components/Footer";
-import About from "./components/About";
+import Header from './components/Header'
+import Footer from './components/Footer'
+import Tasks from './components/Tasks'
+import AddTask from './components/AddTask'
+import About from './components/About'
+import Moon from './components/Moon'
+import Sun from './components/Sun'
+import Navbar from './components/Navbar'
+
 
 function App() {
 
@@ -94,30 +98,46 @@ function App() {
 
   return (
     <Router>
+      {/* <Navbar /> */}
+      {/* <Sun /> */}
+
       <div className="container">
+
+        {/* <Moon /> */}
         <Header
           onAdd={() => setShowAddTask(!showAddTask)}
           showAdd={showAddTask}
         />
-        {showAddTask && <AddTask onAdd={addTask} />}
-        {tasks.length > 0 ?
-          (<Tasks
-            tasks={tasks}
-            onDelete={deleteTask}
-            onToggle={toggleReminder}
-          />) :
-          ('No Tasks to Show')}
 
-        <Routes>
-          <Route
+        < Routes >
+          < Route
+            path='/'
+            exact
+            element={
+              <>
+                {showAddTask && <AddTask onAdd={addTask} />}
+                {tasks.length > 0 ?
+                  (<Tasks
+                    tasks={tasks}
+                    onDelete={deleteTask}
+                    onToggle={toggleReminder}
+                  />) :
+                  ('No Tasks to Show')}
+
+              </>
+            }
+          />
+
+          < Route
             path='/about'
-            components={About}
+            exact
+            element={<About />}
           />
 
         </Routes>
         <Footer />
       </div>
-    </Router>
+    </Router >
   )
 }
 
